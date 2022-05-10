@@ -1,0 +1,32 @@
+[package]
+name = "docstord"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tonic = "0.7"
+prost = "0.10"
+futures-core = "0.3"
+futures-util = "0.3"
+tokio = { version = "1.0", features = ["rt-multi-thread", "macros", "sync", "time"] }
+tokio-stream = "0.1"
+
+async-stream = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_derive = "1.0"
+serde_json = "1.0"
+toml = "0.5"
+rand = "0.7"
+
+clap = { version="3.1", features=["derive"]}
+anyhow = "1.0"
+thiserror = "1.0"
+
+libdocapi = {path = "../libdocapi"}
+
+[dependencies.rocksdb]
+version = "0.18"
+default-features = false
+features = ["lz4", "zstd", "zlib", "bzip2", "serde", "multi-threaded-cf", "rtti"]

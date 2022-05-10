@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package docstor;
+
+service DocStor {
+  rpc Ping(Empty) returns (Status);
+  rpc UploadDocument(Document) returns (Status);
+}
+
+message Empty{}
+
+enum ReturnCode {
+  SUCCESS = 0;
+  ERROR = 1;
+}
+
+message Status {
+  ReturnCode code = 1;
+  optional string message = 2;
+}
+
+message DocumentMetadata {
+  string path = 1;
+  int64 creation_date = 2;
+  map<string,string> user_data = 3;
+}
+
+message Document {
+  string hash = 1;
+  DocumentMetadata meta = 2;
+  bytes blob = 3;
+  repeated string tags = 4;
+}

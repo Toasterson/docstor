@@ -1,0 +1,3 @@
+[tasks.ping]
+command = "cargo"
+args = ["run", "--package", "docstor", "--", "ping"]
