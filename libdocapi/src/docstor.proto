@@ -5,6 +5,12 @@ package docstor;
 service DocStor {
   rpc Ping(Empty) returns (Status);
   rpc UploadDocument(Document) returns (Status);
+  rpc ListDocument(ListFilter) returns (stream DocumentMetadata);
+}
+
+message ListFilter {
+  repeated string tags = 1;
+  repeated string user_data = 2;
 }
 
 message Empty{}
@@ -21,13 +27,13 @@ message Status {
 
 message DocumentMetadata {
   string path = 1;
-  int64 creation_date = 2;
-  map<string,string> user_data = 3;
+  string hash = 2;
+  int64 creation_date = 3;
+  repeated string tags = 4;
+  map<string,string> user_data = 5;
 }
 
 message Document {
-  string hash = 1;
-  DocumentMetadata meta = 2;
-  bytes blob = 3;
-  repeated string tags = 4;
+  DocumentMetadata meta = 1;
+  bytes blob = 2;
 }

@@ -1,3 +1,11 @@
 [tasks.ping]
 command = "cargo"
 args = ["run", "--package", "docstor", "--", "ping"]
+
+[tasks.upload]
+command = "cargo"
+args = ["run", "--package", "docstor", "--", "upload", "-n", "Personal/cv.pdf", "../samples/sample.pdf"]
+
+[tasks.list]
+command = "cargo"
+args = ["run", "--package", "docstor", "--", "ls"]

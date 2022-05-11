@@ -25,3 +25,4 @@ anyhow = "1.0"
 thiserror = "1.0"
 
 libdocapi = {path = "../libdocapi"}
+prettytable-rs = "0.8"

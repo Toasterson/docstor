@@ -13,3 +13,6 @@ prost = "0.10.3"
 
 [build-dependencies]
 tonic-build = "0.7.2"
+
+[build]
+RUSTFLAGS="-Aunused_qualifications"

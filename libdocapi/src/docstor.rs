@@ -1,4 +1,11 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListFilter {
+    #[prost(string, repeated, tag="1")]
+    pub tags: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    #[prost(string, repeated, tag="2")]
+    pub user_data: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Empty {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -12,21 +19,21 @@ pub struct Status {
 pub struct DocumentMetadata {
     #[prost(string, tag="1")]
     pub path: ::prost::alloc::string::String,
-    #[prost(int64, tag="2")]
+    #[prost(string, tag="2")]
+    pub hash: ::prost::alloc::string::String,
+    #[prost(int64, tag="3")]
     pub creation_date: i64,
-    #[prost(map="string, string", tag="3")]
+    #[prost(string, repeated, tag="4")]
+    pub tags: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    #[prost(map="string, string", tag="5")]
     pub user_data: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Document {
-    #[prost(string, tag="1")]
-    pub hash: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag="1")]
     pub meta: ::core::option::Option<DocumentMetadata>,
-    #[prost(bytes="vec", tag="3")]
+    #[prost(bytes="vec", tag="2")]
     pub blob: ::prost::alloc::vec::Vec<u8>,
-    #[prost(string, repeated, tag="4")]
-    pub tags: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -134,6 +141,28 @@ pub mod doc_stor_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn list_document(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListFilter>,
+        ) -> Result<
+                tonic::Response<tonic::codec::Streaming<super::DocumentMetadata>>,
+                tonic::Status,
+            > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/docstor.DocStor/ListDocument",
+            );
+            self.inner.server_streaming(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -151,6 +180,16 @@ pub mod doc_stor_server {
             &self,
             request: tonic::Request<super::Document>,
         ) -> Result<tonic::Response<super::Status>, tonic::Status>;
+        ///Server streaming response type for the ListDocument method.
+        type ListDocumentStream: futures_core::Stream<
+                Item = Result<super::DocumentMetadata, tonic::Status>,
+            >
+            + Send
+            + 'static;
+        async fn list_document(
+            &self,
+            request: tonic::Request<super::ListFilter>,
+        ) -> Result<tonic::Response<Self::ListDocumentStream>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct DocStorServer<T: DocStor> {
@@ -269,6 +308,47 @@ pub mod doc_stor_server {
                                 send_compression_encodings,
                             );
                         let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/docstor.DocStor/ListDocument" => {
+                    #[allow(non_camel_case_types)]
+                    struct ListDocumentSvc<T: DocStor>(pub Arc<T>);
+                    impl<
+                        T: DocStor,
+                    > tonic::server::ServerStreamingService<super::ListFilter>
+                    for ListDocumentSvc<T> {
+                        type Response = super::DocumentMetadata;
+                        type ResponseStream = T::ListDocumentStream;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::ResponseStream>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::ListFilter>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).list_document(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = ListDocumentSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.server_streaming(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
